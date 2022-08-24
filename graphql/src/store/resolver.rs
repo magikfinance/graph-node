@@ -292,7 +292,7 @@ impl Resolver for StoreResolver {
             .map(|(value, trace)| (Some(value), trace))
     }
 
-    fn resolve_objects(
+    async fn resolve_objects(
         &self,
         prefetched_objects: Option<r::Value>,
         field: &a::Field,
