@@ -1992,10 +1992,10 @@ fn cleanup_cached_blocks() {
     })
 }
 
-#[test]
+#[tokio::test]
 /// checks if retrieving the timestamp from the data blob works.
 /// on ethereum, the block has timestamp as U256 so it will always have a value
-fn parse_timestamp() {
+async fn parse_timestamp() {
     const EXPECTED_TS: &str = "0x62ceae26";
 
     run_test(|store, _, _| async move {
@@ -2019,6 +2019,7 @@ fn parse_timestamp() {
 
         let (_network, number, timestamp) = chain_store
             .block_number(&BLOCK_THREE_TIMESTAMP.block_hash())
+            .await
             .expect("block_number to return correct number and timestamp")
             .unwrap();
         assert_eq!(number, 3);
@@ -2026,10 +2027,10 @@ fn parse_timestamp() {
     })
 }
 
-#[test]
+#[tokio::test]
 /// checks if retrieving the timestamp from the data blob works.
 /// on ethereum, the block has timestamp as U256 so it will always have a value
-fn parse_null_timestamp() {
+async fn parse_null_timestamp() {
     run_test(|store, _, _| async move {
         use block_store::*;
         // The test subgraph is at block 2. Since we don't ever delete
@@ -2051,6 +2052,7 @@ fn parse_null_timestamp() {
 
         let (_network, number, timestamp) = chain_store
             .block_number(&BLOCK_THREE_NO_TIMESTAMP.block_hash())
+            .await
             .expect("block_number to return correct number and timestamp")
             .unwrap();
         assert_eq!(number, 3);

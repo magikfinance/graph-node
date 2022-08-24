@@ -230,7 +230,8 @@ impl<S: Store> IndexNodeResolver<S> {
         let chain_store = chain.chain_store();
         let call_cache = chain.call_cache();
 
-        let (block_number, timestamp) = match chain_store.block_number(&block_hash) {
+        let (block_number, timestamp) = match graph::block_on(chain_store.block_number(&block_hash))
+        {
             Ok(Some((_, n, timestamp))) => (n, timestamp),
             Ok(None) => {
                 error!(

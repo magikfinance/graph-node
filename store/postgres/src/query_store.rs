@@ -71,8 +71,7 @@ impl QueryStoreTrait for QueryStore {
         // memory so that we can check against them, and then mark in the
         // database the blocks on the main chain that we consider final
         let subgraph_network = self.network_name();
-        self.chain_store
-            .block_number(block_hash)?
+        graph::block_on(self.chain_store.block_number(block_hash))?
             .map(|(network_name, number, timestamp)| {
                 if network_name == subgraph_network {
                     Ok((number, timestamp))
