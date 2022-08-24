@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "example": "https://github.com/graphprotocol/example-subgraph"
+  }
+}

@@ -17,6 +17,7 @@ use graph::prometheus::Registry;
 use graph::url::Url;
 use graph_chain_arweave::{self as arweave, Block as ArweaveBlock};
 use graph_chain_cosmos::{self as cosmos, Block as CosmosFirehoseBlock};
+use graph_chain_doge::{self as doge, Block as DogeFirehoseBlock};
 use graph_chain_ethereum as ethereum;
 use graph_chain_near::{self as near, HeaderOnlyBlock as NearFirehoseHeaderOnlyBlock};
 use graph_chain_substreams as substreams;
@@ -282,6 +283,13 @@ async fn main() {
                 .unwrap_or_else(|| FirehoseNetworks::new()),
         )
         .await;
+        let (doge_networks, doge_idents) = connect_firehose_networks::<DogeFirehoseBlock>(
+            &logger,
+            firehose_networks_by_kind
+                .remove(&BlockchainKind::Doge)
+                .unwrap_or_else(|| FirehoseNetworks::new()),
+        )
+        .await;
 
         let substreams_networks = firehose_networks_by_kind
             .remove(&BlockchainKind::Substreams)
@@ -306,6 +314,7 @@ async fn main() {
             .chain(arweave_idents)
             .chain(near_idents)
             .chain(cosmos_idents)
+            .chain(doge_idents)
             .chain(substreams_idents)
             .collect();
 
@@ -336,6 +345,14 @@ async fn main() {
             &mut blockchain_map,
             &logger,
             &near_networks,
+            network_store.as_ref(),
+            &logger_factory,
+            metrics_registry.clone(),
+        );
+        let doge_chains = doge_networks_as_chains(
+            &mut blockchain_map,
+            &logger,
+            &doge_networks,
             network_store.as_ref(),
             &logger_factory,
             metrics_registry.clone(),
@@ -402,6 +419,11 @@ async fn main() {
                 &logger,
                 &network_store,
                 arweave_chains,
+            );
+            start_firehose_block_ingestor::<_, DogeFirehoseBlock>(
+                &logger,
+                &network_store,
+                doge_chains,
             );
 
             start_firehose_block_ingestor::<_, NearFirehoseHeaderOnlyBlock>(
@@ -813,6 +835,54 @@ fn near_networks_as_chains(
         })
         .collect();
 
+    for (chain_id, firehose_chain) in chains.iter() {
+        blockchain_map
+            .insert::<graph_chain_near::Chain>(chain_id.clone(), firehose_chain.chain.clone())
+    }
+
+    HashMap::from_iter(chains)
+}
+fn doge_networks_as_chains(
+    blockchain_map: &mut BlockchainMap,
+    logger: &Logger,
+    firehose_networks: &FirehoseNetworks,
+    store: &Store,
+    logger_factory: &LoggerFactory,
+    metrics_registry: Arc<MetricsRegistry>,
+) -> HashMap<String, FirehoseChain<doge::Chain>> {
+    let chains: Vec<_> = firehose_networks
+        .networks
+        .iter()
+        .filter_map(|(chain_id, endpoints)| {
+            store
+                .block_store()
+                .chain_store(chain_id)
+                .map(|chain_store| (chain_id, chain_store, endpoints))
+                .or_else(|| {
+                    error!(
+                        logger,
+                        "No store configured for Doge chain {}; ignoring this chain", chain_id
+                    );
+                    None
+                })
+        })
+        .map(|(chain_id, chain_store, endpoints)| {
+            (
+                chain_id.clone(),
+                FirehoseChain {
+                    chain: Arc::new(doge::Chain::new(
+                        logger_factory.clone(),
+                        chain_id.clone(),
+                        chain_store,
+                        endpoints.clone(),
+                        metrics_registry.clone(),
+                        Arc::new(DogeStreamBuilder {}),
+                    )),
+                    firehose_endpoints: endpoints.clone(),
+                },
+            )
+        })
+        .collect();
     for (chain_id, firehose_chain) in chains.iter() {
         blockchain_map
             .insert::<graph_chain_near::Chain>(chain_id.clone(), firehose_chain.chain.clone())

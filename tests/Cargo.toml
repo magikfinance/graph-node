@@ -10,6 +10,7 @@ futures = { version = "0.3", features = ["compat"] }
 graph = { path = "../graph" }
 tokio = { version = "1.16.1", features = ["rt", "macros", "process"] }
 graph-chain-ethereum = { path = "../chain/ethereum" }
+graph-chain-doge = {path = "../chain/doge" }
 async-stream = "0.3.3"
 graph-node = { path = "../node" }
 graph-core = { path = "../core" }

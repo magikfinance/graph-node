@@ -366,6 +366,23 @@ where
                 )
                 .await?
             }
+            BlockchainKind::Doge => {
+                create_subgraph_version::<graph_chain_doge::Chain, _>(
+                    &logger,
+                    self.store.clone(),
+                    self.chains.cheap_clone(),
+                    name.clone(),
+                    hash.cheap_clone(),
+                    start_block_override,
+                    graft_block_override,
+                    raw,
+                    node_id,
+                    debug_fork,
+                    self.version_switching_mode,
+                    &self.resolver,
+                )
+                .await?
+            }
             BlockchainKind::Substreams => {
                 create_subgraph_version::<graph_chain_substreams::Chain, _>(
                     &logger,

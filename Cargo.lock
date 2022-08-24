@@ -1558,6 +1558,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "graph-chain-doge"
+version = "0.27.0"
+dependencies = [
+ "base64",
+ "diesel",
+ "graph",
+ "graph-runtime-derive",
+ "graph-runtime-wasm",
+ "prost",
+ "prost-types",
+ "serde",
+ "tonic-build",
+]
+
+[[package]]
 name = "graph-chain-ethereum"
 version = "0.27.0"
 dependencies = [
@@ -1639,6 +1654,7 @@ dependencies = [
  "graph",
  "graph-chain-arweave",
  "graph-chain-cosmos",
+ "graph-chain-doge",
  "graph-chain-ethereum",
  "graph-chain-near",
  "graph-chain-substreams",
@@ -1700,6 +1716,7 @@ dependencies = [
  "graph",
  "graph-chain-arweave",
  "graph-chain-cosmos",
+ "graph-chain-doge",
  "graph-chain-ethereum",
  "graph-chain-near",
  "graph-chain-substreams",
@@ -1898,6 +1915,7 @@ dependencies = [
  "bollard",
  "futures 0.3.16",
  "graph",
+ "graph-chain-doge",
  "graph-chain-ethereum",
  "graph-chain-near",
  "graph-core",

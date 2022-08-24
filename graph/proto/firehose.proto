@@ -83,6 +83,7 @@ message Response {
   // - sf.eosio.codec.v1.Block
   // - sf.ethereum.codec.v1.Block
   // - sf.near.codec.v1.Block
+  // - sf.doge.codec.v1.Block
   // - sf.solana.codec.v1.Block
   google.protobuf.Any block = 1;
   ForkStep step = 6;

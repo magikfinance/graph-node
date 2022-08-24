@@ -94,7 +94,18 @@ impl<S: SubgraphStore> SubgraphInstanceManagerTrait for SubgraphInstanceManager<
                         )
                         .await
                 }
-            }
+                BlockchainKind::Doge => {
+                    instance_manager
+                        .start_subgraph_inner::<graph_chain_doge::Chain>(
+                            logger,
+                            loc,
+                            manifest,
+                            stop_block,
+                            Box::new(SubgraphTriggerProcessor {}),
+                        )
+                        .await
+                }
+            }  
         };
         // Perform the actual work of starting the subgraph in a separate
         // task. If the subgraph is a graft or a copy, starting it will
