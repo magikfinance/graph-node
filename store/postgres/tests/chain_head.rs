@@ -2,6 +2,7 @@
 //! the chain head pointer gets updated in various situations
 
 use futures::executor;
+use graph::tokio;
 use std::future::Future;
 use std::sync::Arc;
 
@@ -166,8 +167,8 @@ fn long_chain_with_uncles() {
     check_chain_head_update(chain, Some(&*BLOCK_FOUR), None);
 }
 
-#[test]
-fn block_number() {
+#[tokio::test]
+async fn block_number() {
     let chain = vec![&*GENESIS_BLOCK, &*BLOCK_ONE, &*BLOCK_TWO];
     let subgraph = DeploymentHash::new("nonExistentSubgraph").unwrap();
 
@@ -186,16 +187,19 @@ fn block_number() {
 
             let block = query_store
                 .block_number(&GENESIS_BLOCK.block_hash())
+                .await
                 .expect("Found genesis block");
             assert_eq!(Some(0), block);
 
             let block = query_store
                 .block_number(&BLOCK_ONE.block_hash())
+                .await
                 .expect("Found block 1");
             assert_eq!(Some(1), block);
 
             let block = query_store
                 .block_number(&BLOCK_THREE.block_hash())
+                .await
                 .expect("Looked for block 3");
             assert!(block.is_none());
         }
